@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Just One Simple</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    button {
+      margin: 10px;
+      padding: 15px 30px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background-color: white;
+      color: black;
+      cursor: pointer;
+      text-transform: uppercase;
+    }
+    #wordBox {
+      font-weight: bold;
+      text-transform: uppercase;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      text-align: center;
+      white-space: nowrap;
+    }
+    #hintBox {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #hintDisplay {
+      outline: none;
+      color: white;
+      background-color: black;
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      display: inline-block;
+    }
+    #backButton {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 1rem;
+      background: none;
+      border: 2px solid white;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      display: none;
+    }
+    #menu {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <button id="backButton" onclick="goBack()">VOLVER</button>
+  <div id="menu">
+    <button onclick="showWord()">GENERAR PALABRA</button>
+    <button onclick="showHintInput()">DAR PISTA</button>
+  </div>
+
+  <div id="wordBox" style="display: none;"><span id="wordText"></span></div>
+  <div id="hintBox" style="display: none;">
+    <div id="hintDisplay" contenteditable="true" spellcheck="false"></div>
+  </div>
+
+  <script>
+    const words = ["PERRO", "MESA", "DOCTOR", "ARGENTINA", "LUNA", "RUIDO", "ZAPATO", "BIBLIOTECA", "CINE", "PLANETA", "TREN", "GATO", "DRÁCULA", "CELULAR", "GUITARRA", "FIESTA", "CAFÉ", "MONTÁÑA", "FÚTBOL", "PLAYA"];
+
+    let countdownInterval = null;
+
+    function fitTextToContainer(element) {
+      requestAnimationFrame(() => {
+        let fontSize = 30;
+        element.style.fontSize = fontSize + 'vw';
+        const container = element.parentElement.getBoundingClientRect();
+        const clone = element.cloneNode(true);
+        clone.style.position = 'absolute';
+        clone.style.left = '-9999px';
+        clone.style.top = '-9999px';
+        clone.style.whiteSpace = 'nowrap';
+        document.body.appendChild(clone);
+
+        while (fontSize > 1) {
+          clone.style.fontSize = fontSize + 'vw';
+          const rect = clone.getBoundingClientRect();
+          if (rect.width <= container.width && rect.height <= container.height) break;
+          fontSize -= 0.5;
+        }
+
+        element.style.fontSize = fontSize + 'vw';
+        document.body.removeChild(clone);
+      });
+    }
+
+    function showWord() {
+      const menu = document.getElementById("menu");
+      const backButton = document.getElementById("backButton");
+      const wordBox = document.getElementById("wordBox");
+      const wordText = document.getElementById("wordText");
+      const hintBox = document.getElementById("hintBox");
+
+      menu.style.display = "none";
+      backButton.style.display = "block";
+      hintBox.style.display = "none";
+      wordBox.style.display = "flex";
+      wordText.style.fontSize = '15vw';
+
+      let countdown = 5;
+      wordText.textContent = countdown;
+
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          wordText.textContent = countdown;
+        } else {
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+          const randomWord = words[Math.floor(Math.random() * words.length)];
+          wordText.textContent = randomWord;
+          fitTextToContainer(wordText);
+        }
+      }, 1000);
+    }
+
+    function showHintInput() {
+      const menu = document.getElementById("menu");
+      const backButton = document.getElementById("backButton");
+      const wordBox = document.getElementById("wordBox");
+      const hintBox = document.getElementById("hintBox");
+      const hintDisplay = document.getElementById("hintDisplay");
+
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      menu.style.display = "none";
+      backButton.style.display = "block";
+      wordBox.style.display = "none";
+      hintBox.style.display = "flex";
+      hintDisplay.textContent = "";
+      hintDisplay.focus();
+    }
+
+    function goBack() {
+      const menu = document.getElementById("menu");
+      const backButton = document.getElementById("backButton");
+      const wordBox = document.getElementById("wordBox");
+      const hintBox = document.getElementById("hintBox");
+      const hintDisplay = document.getElementById("hintDisplay");
+      const wordText = document.getElementById("wordText");
+
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      wordBox.style.display = "none";
+      hintBox.style.display = "none";
+      hintDisplay.textContent = "";
+      wordText.textContent = "";
+      menu.style.display = "flex";
+      backButton.style.display = "none";
+    }
+
+    const hintDisplay = document.getElementById("hintDisplay");
+    hintDisplay.addEventListener("input", () => {
+      fitTextToContainer(hintDisplay);
+    });
+  </script>
+</body>
+</html>
